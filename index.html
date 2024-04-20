@@ -43,7 +43,7 @@
       display: flex;
       position: relative;
       text-align: center;
-      font-size: calc(0.5em + 70vh);
+      font-size: calc(0.6em + 55vh);
       font-family: "Raleway Dots", sans-serif;
       font-weight: 400;
       font-style: normal;
@@ -102,9 +102,22 @@
       let lastY = 0;
 
       canvas.addEventListener("mousedown", (e) => {
-        isDrawing = true;
         [lastX, lastY] = [e.offsetX, e.offsetY];
+        isDrawing = true;
       });
+
+
+      canvas.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        [lastX, lastY] = [e.touches[0].clientX - canvas.getBoundingClientRect().left, e.touches[0].clientY - canvas.getBoundingClientRect().top]; 
+      });
+
+
+      function draw(x, y, ctx) {
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2, true);
+        ctx.fill();
+      }
 
       // first layer drawing
       canvas.addEventListener("mousemove", (e) => {
@@ -112,10 +125,16 @@
         y = e.offsetY;
 
         if (isDrawing) {
-          ctx.beginPath();
-          ctx.arc(x, y, 5, 0, Math.PI * 2, true);
-          ctx.fill();
+          draw(x, y, ctx)
         }
+      });
+      
+      canvas.addEventListener("touchmove", (e) => {
+        x = e.touches[0].clientX - canvas.getBoundingClientRect().left;
+        y = e.touches[0].clientY - canvas.getBoundingClientRect().top;
+
+        isDrawing = true
+        draw(x, y, ctx)
       });
 
       // second layer drawing
@@ -147,6 +166,14 @@
       });
 
       canvas.addEventListener("mouseout", () => {
+        isDrawing = false;
+      });
+
+      canvas.addEventListener("touchend", () => {
+        isDrawing = false;
+      });
+      
+      canvas.addEventListener("touchcancel", () => {
         isDrawing = false;
       });
     });
