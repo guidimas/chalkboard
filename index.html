@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desenho com Mouse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway+Dots&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #004225;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+    }
+
+    @keyframes grow {
+      from {
+        width: 0%;
+      }
+
+      to {
+        width: 100%;
+      }
+    }
+
+    #chalkboard {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    #letter {
+      color: rgba(255, 255, 255, 0.3);
+      display: flex;
+      position: relative;
+      text-align: center;
+      font-size: calc(0.5em + 70vh);
+      font-family: "Raleway Dots", sans-serif;
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    #timer {
+      display: block;
+      position: absolute;
+      top: 0;
+      height: 10px;
+      width: 0;
+      background-color: white;
+      animation-duration: 15s;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
+      animation-iteration-count: infinite;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="letter"></div>
+  <canvas id="chalkboard"></canvas>
+  <div id="timer"></div>
+  <script>
+
+    function newLetter() {
+      const letter = document.getElementById("letter");
+      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+      const index = Math.floor(Math.random() * alphabet.length);
+      letter.innerHTML = alphabet[index];
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const canvas = document.getElementById("chalkboard");
+      const timer = document.getElementById("timer");
+
+      canvas.offscreenCanvas = document.createElement("canvas");
+      canvas.offscreenCanvas.width = canvas.width;
+      canvas.offscreenCanvas.height = canvas.height;
+
+      // adjust to device width and height
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      // get context to draw
+      const ctx = canvas.getContext("2d");
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = 'white';
+      ctx.fillStyle = 'white';
+
+      let isDrawing = false;
+      let x = 0;
+      let y = 0;
+      let lastX = 0;
+      let lastY = 0;
+
+      canvas.addEventListener("mousedown", (e) => {
+        isDrawing = true;
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+      });
+
+      // first layer drawing
+      canvas.addEventListener("mousemove", (e) => {
+        x = e.offsetX;
+        y = e.offsetY;
+
+        if (isDrawing) {
+          ctx.beginPath();
+          ctx.arc(x, y, 5, 0, Math.PI * 2, true);
+          ctx.fill();
+        }
+      });
+
+      // second layer drawing
+      setInterval(() => {
+        if (isDrawing) {
+          ctx.beginPath();
+          ctx.moveTo(lastX, lastY);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+          [lastX, lastY] = [x, y];
+        }
+      }, 1);
+
+      // starts animation
+      timer.style.animationName = 'grow';
+
+      setTimeout(() => {
+        // get a new letter
+        newLetter();
+
+        // clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }, 15000);
+
+      newLetter();
+
+      canvas.addEventListener("mouseup", () => {
+        isDrawing = false;
+      });
+
+      canvas.addEventListener("mouseout", () => {
+        isDrawing = false;
+      });
+    });
+
+  </script>
+</body>
+
+</html>
