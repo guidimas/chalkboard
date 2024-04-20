@@ -138,7 +138,7 @@
       });
 
       // second layer drawing
-      setInterval(() => {
+      window.setInterval(() => {
         if (isDrawing) {
           ctx.beginPath();
           ctx.moveTo(lastX, lastY);
@@ -151,12 +151,16 @@
       // starts animation
       timer.style.animationName = 'grow';
 
-      setTimeout(() => {
+      function newRound() {
         // get a new letter
         newLetter();
 
         // clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      window.setTimeout(() => {
+        newRound();
       }, 15000);
 
       newLetter();
