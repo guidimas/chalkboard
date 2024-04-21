@@ -32,6 +32,7 @@
     }
 
     #chalkboard {
+      cursor: pointer;
       display: block;
       position: absolute;
       top: 0;
@@ -43,7 +44,7 @@
       display: flex;
       position: relative;
       text-align: center;
-      font-size: calc(0.6em + 55vh);
+      font-size: min(70vh, 70vw);
       font-family: "Raleway Dots", sans-serif;
       font-weight: 400;
       font-style: normal;
@@ -72,28 +73,34 @@
 
     function newLetter() {
       const letter = document.getElementById("letter");
-      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+      const alphabet = ['W']//"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
       const index = Math.floor(Math.random() * alphabet.length);
       letter.innerHTML = alphabet[index];
     }
 
     document.addEventListener("DOMContentLoaded", function () {
       const canvas = document.getElementById("chalkboard");
+      let ctx = canvas.getContext("2d");
       const timer = document.getElementById("timer");
 
-      canvas.offscreenCanvas = document.createElement("canvas");
-      canvas.offscreenCanvas.width = canvas.width;
-      canvas.offscreenCanvas.height = canvas.height;
+      function reload() {
+        // adjust to device width and height
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-      // adjust to device width and height
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+        canvas.offscreenCanvas = document.createElement("canvas");
+        canvas.offscreenCanvas.width = canvas.width;
+        canvas.offscreenCanvas.height = canvas.height;
 
-      // get context to draw
-      const ctx = canvas.getContext("2d");
-      ctx.lineWidth = 10;
-      ctx.strokeStyle = 'white';
-      ctx.fillStyle = 'white';
+        ctx = canvas.getContext("2d");
+
+        // get context to draw
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = 'white';
+        ctx.fillStyle = 'white';
+      }
+
+      reload();
 
       let isDrawing = false;
       let x = 0;
@@ -109,7 +116,7 @@
 
       canvas.addEventListener("touchstart", (e) => {
         e.preventDefault();
-        [lastX, lastY] = [e.touches[0].clientX - canvas.getBoundingClientRect().left, e.touches[0].clientY - canvas.getBoundingClientRect().top]; 
+        [lastX, lastY] = [e.touches[0].clientX - canvas.getBoundingClientRect().left, e.touches[0].clientY - canvas.getBoundingClientRect().top];
       });
 
 
@@ -128,7 +135,7 @@
           draw(x, y, ctx)
         }
       });
-      
+
       canvas.addEventListener("touchmove", (e) => {
         x = e.touches[0].clientX - canvas.getBoundingClientRect().left;
         y = e.touches[0].clientY - canvas.getBoundingClientRect().top;
@@ -159,7 +166,8 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
 
-      window.setTimeout(() => {
+      // clear and get a new letter every 15s
+      window.setInterval(() => {
         newRound();
       }, 15000);
 
@@ -176,10 +184,22 @@
       canvas.addEventListener("touchend", () => {
         isDrawing = false;
       });
-      
+
       canvas.addEventListener("touchcancel", () => {
         isDrawing = false;
       });
+
+      function reportWindowSize() {
+        heightOutput.textContent = window.innerHeight;
+        widthOutput.textContent = window.innerWidth;
+      }
+
+      window.onresize = () => {
+        // clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        reload();
+      };
     });
 
   </script>
